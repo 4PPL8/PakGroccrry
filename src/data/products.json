@@ -1,0 +1,137 @@
+[
+  {
+    "id": "1",
+    "name": "Olper Milk 1L",
+    "brand": "Olper",
+    "price": 280,
+    "image": "/product-images/olper-milk-1.jpg",
+    "category": "Dairy",
+    "description": "Fresh and hygienic milk in 1-liter packaging."
+  },
+  {
+    "id": "2",
+    "name": "Slice Mango Juice 1L",
+    "brand": "Slice",
+    "price": 220,
+    "image": "/product-images/slice-juice-1.jpg",
+    "category": "Beverages",
+    "description": "Refreshing mango juice in 1-liter packaging."
+  },
+  {
+    "id": "3",
+    "name": "Sooper Biscuits Family Pack",
+    "brand": "Peek Freans",
+    "price": 150,
+    "image": "/product-images/sooper-biscuits-1.jpg",
+    "category": "Snacks & Biscuits",
+    "description": "Crispy and delicious biscuits for the whole family."
+  },
+  {
+    "id": "4",
+    "name": "Dalda Cooking Oil 5L",
+    "brand": "Dalda",
+    "price": 1800,
+    "image": "/product-images/dalda-oil-1.jpg",
+    "category": "Cooking Essentials",
+    "description": "Pure cooking oil for healthy and tasty cooking."
+  },
+  {
+    "id": "5",
+    "name": "Shezan Mango Juice 1L",
+    "brand": "Shezan",
+    "price": 210,
+    "image": "/product-images/shezan-juice-1.jpg",
+    "category": "Beverages",
+    "description": "Premium quality mango juice in 1-liter packaging."
+  },
+  {
+    "id": "6",
+    "name": "Nestlé Milkpak 1L",
+    "brand": "Nestlé",
+    "price": 270,
+    "image": "/product-images/milkpak-1.jpg",
+    "category": "Dairy",
+    "description": "UHT treated milk in 1-liter packaging."
+  },
+  {
+    "id": "7",
+    "name": "Lays Classic Salted 45g",
+    "brand": "Lays",
+    "price": 80,
+    "image": "/product-images/lays-classic-1.jpg",
+    "category": "Snacks & Biscuits",
+    "description": "Crispy potato chips with classic salt flavor."
+  },
+  {
+    "id": "8",
+    "name": "Shan Biryani Masala 50g",
+    "brand": "Shan",
+    "price": 120,
+    "image": "/product-images/shan-biryani-1.jpg",
+    "category": "Spices & Masalas",
+    "description": "Perfect blend of spices for authentic biryani."
+  },
+  {
+    "id": "9",
+    "name": "Rooh Afza 800ml",
+    "brand": "Hamdard",
+    "price": 350,
+    "image": "/product-images/rooh-afza-1.jpg",
+    "category": "Beverages",
+    "description": "Traditional rose syrup drink concentrate."
+  },
+  {
+    "id": "10",
+    "name": "Surf Excel 1kg",
+    "brand": "Surf Excel",
+    "price": 550,
+    "image": "/product-images/surf-excel-1.jpg",
+    "category": "Cleaning & Washing",
+    "description": "Powerful detergent for tough stain removal."
+  },
+  {
+    "id": "11",
+    "name": "Nurpur Butter 200g",
+    "brand": "Nurpur",
+    "price": 320,
+    "image": "/product-images/nurpur-butter-1.jpg",
+    "category": "Dairy",
+    "description": "Pure butter made from fresh cream."
+  },
+  {
+    "id": "12",
+    "name": "Kolson Spaghetti 400g",
+    "brand": "Kolson",
+    "price": 180,
+    "image": "/product-images/kolson-spaghetti-1.jpg",
+    "category": "Pasta & Noodles",
+    "description": "High-quality spaghetti pasta."
+  },
+  {
+    "id": "13",
+    "name": "Lifebuoy Soap 115g",
+    "brand": "Lifebuoy",
+    "price": 90,
+    "image": "/product-images/lifebuoy-soap-1.jpg",
+    "category": "Toiletries & Hygiene",
+    "description": "Antibacterial soap for complete protection."
+  },
+  {
+    "id": "14",
+    "name": "Guard Basmati Rice 5kg",
+    "brand": "Guard",
+    "price": 1200,
+    "image": "/product-images/guard-rice-1.jpg",
+    "category": "Grains & Staples",
+    "description": "Premium quality long grain basmati rice."
+  },
+  {
+    "id": "15",
+    "name": "Dal Chana 1kg",
+    "brand": "National",
+    "price": 280,
+    "image": "/product-images/dal-chana-1.jpg",
+    "category": "Dals & Pulses",
+    "description": "High-quality split chickpeas."
+  }
+]
