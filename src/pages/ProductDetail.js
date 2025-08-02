@@ -181,7 +181,7 @@ const ProductDetail = () => {
                   >
                     <img 
                       src={image} 
-                      alt={`Thumbnail ${index + 1}`}
+                      // The alt attribute was removed here
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         e.target.onerror = null;

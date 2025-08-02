@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../utils/AuthContext';
 import toast from 'react-hot-toast';
@@ -12,7 +12,6 @@ const Verify = () => {
   const { verifyCode, pendingUser, resendCode } = useAuth();
   const navigate = useNavigate();
 
-  // ✅ Fixed way to create refs
   const inputRefs = useRef([]);
   if (inputRefs.current.length !== 6) {
     inputRefs.current = Array(6).fill().map(() => React.createRef());

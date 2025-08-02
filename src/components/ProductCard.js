@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../utils/CartContext';
-import toast from 'react-hot-toast';
+// The 'toast' import has been removed as it was not used
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
