@@ -139,8 +139,7 @@ const ProductDetail = () => {
                   >
                     <img 
                       src={image} 
-                      // Line 140: Changed alt from a redundant value to a more concise one.
-                      alt={`${product.name} image`}
+                      alt={`${product.name}`}
                       className="w-full h-full object-contain"
                       onError={(e) => {
                         e.target.onerror = null;
@@ -182,8 +181,7 @@ const ProductDetail = () => {
                   >
                     <img 
                       src={image} 
-                      // Line 182: Added a meaningful alt prop
-                      alt={`Thumbnail of ${product.name} image ${index + 1}`}
+                      alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         e.target.onerror = null;
