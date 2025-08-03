@@ -246,8 +246,8 @@ const Home = () => {
             </p>
           </motion.div>
           
-          {/* Infinite Scroll Ribbon */}
-          <div className="relative overflow-hidden py-8 mb-16">
+          {/* First Infinite Scroll Ribbon - Left to Right */}
+          <div className="relative overflow-hidden py-8 mb-8">
             <motion.div
               className="flex space-x-6"
               animate={{ x: ["-10%", "-60%"] }}
@@ -264,6 +264,46 @@ const Home = () => {
               {[...products, ...products].map((product, index) => (
                 <motion.div 
                   key={`${product.id}-${index}`} 
+                  className="flex-shrink-0 w-64 bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  whileHover={{ y: -5 }}
+                >
+                  <img 
+                    src={product.image} 
+                    alt={product.name}
+                    className="w-full h-40 object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/product-images/placeholder.svg';
+                    }}
+                  />
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-2">{product.name}</h3>
+                    <p className="text-sm text-gray-500 mb-2">{product.brand}</p>
+                    <p className="text-neon-accent font-bold text-lg">PKR {product.price.toLocaleString()}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+          
+          {/* Second Infinite Scroll Ribbon - Right to Left */}
+          <div className="relative overflow-hidden py-8 mb-16">
+            <motion.div
+              className="flex space-x-6"
+              animate={{ x: ["-60%", "-10%"] }}
+              transition={{ 
+                x: {
+                  repeat: Infinity,
+                  repeatType: "loop",
+                  duration: 15,
+                  ease: "linear"
+                }
+              }}
+            >
+              {/* Double the products to create seamless loop */}
+              {[...products, ...products].map((product, index) => (
+                <motion.div 
+                  key={`reverse-${product.id}-${index}`} 
                   className="flex-shrink-0 w-64 bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
                   whileHover={{ y: -5 }}
                 >

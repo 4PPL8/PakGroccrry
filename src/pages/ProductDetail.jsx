@@ -15,7 +15,7 @@ const ProductDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   
-  // Load product data
+  // Load product data?
   useEffect(() => {
     const loadProduct = async () => {
       try {
