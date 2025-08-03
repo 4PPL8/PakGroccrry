@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
 import Breadcrumb from '../components/Breadcrumb';
@@ -20,6 +20,10 @@ const Products = () => {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 5000 });
   const [sortBy, setSortBy] = useState('default');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const searchRef = useRef(null);
   
   // Load products
   useEffect(() => {
@@ -49,6 +53,91 @@ const Products = () => {
     loadProducts();
   }, []);
   
+  // Handle clicks outside of search suggestions dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Handle search input changes and generate suggestions
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setSelectedSuggestionIndex(-1); // Reset selection when input changes
+    
+    if (query.trim() === '') {
+      setSearchSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    
+    const lowercaseQuery = query.toLowerCase();
+    const suggestions = products.filter(p => 
+      p.name.toLowerCase().includes(lowercaseQuery) || 
+      p.brand.toLowerCase().includes(lowercaseQuery) ||
+      p.category.toLowerCase().includes(lowercaseQuery)
+    ).slice(0, 5); // Limit to 5 suggestions
+    
+    setSearchSuggestions(suggestions);
+    setShowSuggestions(true);
+  };
+  
+  // Handle keyboard navigation for search suggestions
+  const handleKeyDown = (e) => {
+    if (!showSuggestions || searchSuggestions.length === 0) return;
+    
+    // Arrow down - move selection down
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedSuggestionIndex(prevIndex => 
+        prevIndex < searchSuggestions.length - 1 ? prevIndex + 1 : 0
+      );
+    }
+    
+    // Arrow up - move selection up
+    else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedSuggestionIndex(prevIndex => 
+        prevIndex > 0 ? prevIndex - 1 : searchSuggestions.length - 1
+      );
+    }
+    
+    // Enter - select the highlighted suggestion
+    else if (e.key === 'Enter' && selectedSuggestionIndex >= 0) {
+      e.preventDefault();
+      const selectedProduct = searchSuggestions[selectedSuggestionIndex];
+      setSearchQuery(selectedProduct.name);
+      setShowSuggestions(false);
+      // Navigate to the product page
+      window.location.href = `/product/${selectedProduct.id}`;
+    }
+    
+    // Escape - close suggestions
+    else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    }
+  };
+  
+  // Highlight matching text in search results
+  const highlightMatch = (text, query) => {
+    if (!query.trim()) return text;
+    
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) => 
+      regex.test(part) ? <span key={index} className="bg-yellow-100 text-gray-800">{part}</span> : part
+    );
+  };
+
   // Apply filters and sorting
   useEffect(() => {
     let result = [...products];
@@ -107,6 +196,9 @@ const Products = () => {
     setPriceRange({ min: 0, max: Math.max(...products.map(p => p.price)) });
     setSortBy('default');
     setSearchQuery('');
+    setSearchSuggestions([]);
+    setShowSuggestions(false);
+    setSelectedSuggestionIndex(-1);
   };
   
   return (
@@ -123,21 +215,112 @@ const Products = () => {
         <h1 className="text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-neon-accent to-neon-accent-dark">Explore Our Products</h1>
         
         {/* Search Bar */}
-        <div className="mb-8 max-w-md mx-auto">
+        <div className="mb-8 max-w-md mx-auto" ref={searchRef}>
           <div className="relative">
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
+              onFocus={() => searchQuery.trim() !== '' && setShowSuggestions(true)}
               placeholder="Search products..."
               className="w-full px-4 py-3 rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-neon-accent focus:border-transparent shadow-sm transition-all duration-300 hover:shadow-md"
+              aria-expanded={showSuggestions}
+              aria-autocomplete="list"
+              aria-controls="search-suggestions"
+              aria-activedescendant={selectedSuggestionIndex >= 0 ? `suggestion-${selectedSuggestionIndex}` : ''}
             />
             <button 
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-neon-accent transition-colors duration-300"
-              onClick={() => setSearchQuery('')}
+              onClick={() => {
+                setSearchQuery('');
+                setSearchSuggestions([]);
+                setShowSuggestions(false);
+              }}
             >
               {searchQuery ? 'Clear' : 'Search'}
             </button>
+            
+            {/* Search Suggestions Dropdown */}
+            {showSuggestions && searchSuggestions.length > 0 && (
+              <div 
+                className="absolute z-50 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden max-h-[80vh] sm:max-h-[60vh] overflow-y-auto"
+                id="search-suggestions"
+                role="listbox"
+                aria-label="Search suggestions"
+              >
+                <AnimatePresence>
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="p-2 bg-gray-50 border-b border-gray-100 sticky top-0 z-10">
+                      <p className="text-sm font-medium text-gray-700">Suggestions for "{searchQuery}"</p>
+                    </div>
+                    {searchSuggestions.map((product, index) => (
+                      <Link 
+                        key={product.id} 
+                        id={`suggestion-${index}`}
+                        to={`/product/${product.id}`}
+                        role="option"
+                        aria-selected={selectedSuggestionIndex === index}
+                        className={`block transition-colors duration-200 ${selectedSuggestionIndex === index ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                        onClick={() => {
+                          setSearchQuery(product.name);
+                          setShowSuggestions(false);
+                        }}
+                        onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                      >
+                        <div className="flex items-center p-3 border-b border-gray-100 last:border-b-0">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-md overflow-hidden flex-shrink-0 bg-gray-100">
+                            <img 
+                              src={product.image} 
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '/product-images/placeholder.jpg';
+                              }}
+                            />
+                          </div>
+                          <div className="ml-2 sm:ml-3 flex-1">
+                            <p className="font-medium text-gray-800 line-clamp-1 text-sm sm:text-base">
+                              {highlightMatch(product.name, searchQuery)}
+                            </p>
+                            <p className="text-xs sm:text-sm text-gray-500">
+                              {highlightMatch(product.brand, searchQuery)} · ₹{product.price} · {highlightMatch(product.category, searchQuery)}
+                            </p>
+                          </div>
+                          {selectedSuggestionIndex === index && (
+                            <div className="ml-2 text-neon-accent">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                    <div className="p-2 bg-gray-50 border-t border-gray-100 sticky bottom-0 z-10">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500">{searchSuggestions.length} results</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500 hidden sm:inline">Use ↑↓ to navigate, Enter to select</span>
+                          <button 
+                            className="text-center text-sm font-medium text-neon-accent hover:text-neon-accent-dark transition-colors duration-200 py-1 px-3"
+                            onClick={() => setShowSuggestions(false)}
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            )}
           </div>
         </div>
         

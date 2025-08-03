@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
+import SwipeableCardStack from '../components/SwipeableCardStack';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -120,7 +121,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Hero Section */}
-      <section className="relative h-[80vh] overflow-hidden">
+      <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] overflow-hidden">
         {heroImages.map((hero, index) => (
           <motion.div
             key={index}
@@ -138,9 +139,9 @@ const Home = () => {
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30 flex items-center justify-center">
-                <div className="text-center text-white px-4">
+                <div className="text-center text-white px-4 w-full max-w-4xl mx-auto">
                   <motion.h1 
-                    className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent"
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-3 sm:mb-4 md:mb-6 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent"
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ 
                       y: currentHeroIndex === index ? 0 : 20, 
@@ -152,7 +153,7 @@ const Home = () => {
                   </motion.h1>
                   
                   <motion.p 
-                    className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto leading-relaxed"
+                    className="text-base sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto leading-relaxed"
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ 
                       y: currentHeroIndex === index ? 0 : 20, 
@@ -163,7 +164,6 @@ const Home = () => {
                     {hero.description}
                   </motion.p>
                   
-                  {/* FIX: Added 'flex' and 'justify-center' to make buttons side-by-side and centered */}
                   <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ 
@@ -171,15 +171,16 @@ const Home = () => {
                       opacity: currentHeroIndex === index ? 1 : 0 
                     }}
                     transition={{ delay: 0.6, duration: 0.8 }}
-                    className="flex justify-center space-x-4" 
+                    className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4" 
                   >
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      className="w-full sm:w-auto"
                     >
                       <Link 
                         to="/products" 
-                        className="bg-gradient-to-r from-neon-accent to-green-400 text-black px-8 py-4 rounded-full text-lg font-bold hover:from-white hover:to-gray-100 transition-all duration-300 inline-block shadow-lg hover:shadow-xl"
+                        className="bg-gradient-to-r from-neon-accent to-green-400 text-black px-6 sm:px-8 py-3 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:from-white hover:to-gray-100 transition-all duration-300 inline-block shadow-lg hover:shadow-xl w-full sm:w-auto"
                       >
                         {hero.cta}
                       </Link>
@@ -187,10 +188,11 @@ const Home = () => {
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      className="w-full sm:w-auto"
                     >
                       <Link 
                       to="/products" 
-                      className="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-white hover:text-black transition-all duration-300 inline-block"
+                      className="border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:bg-white hover:text-black transition-all duration-300 inline-block w-full sm:w-auto"
                     >
                       View All
                     </Link>
@@ -247,102 +249,78 @@ const Home = () => {
           </motion.div>
           
           {/* First Infinite Scroll Ribbon - Left to Right */}
-          <div className="relative overflow-hidden py-8 mb-8">
+          <div className="relative overflow-hidden py-4 mb-4">
             <motion.div
-              className="flex space-x-6"
-              animate={{ x: ["-10%", "-60%"] }}
+              className="flex space-x-3 md:space-x-4 lg:space-x-6"
+              animate={{ x: ["0%", "-100%"] }}
               transition={{ 
                 x: {
                   repeat: Infinity,
-                  repeatType: "loop",
-                  duration: 15,  /* Reduced from 30 to 15 to make it faster */
+                  repeatType: "mirror",
+                  duration: 25,
                   ease: "linear"
                 }
               }}
             >
-              {/* Double the products to create seamless loop */}
-              {[...products, ...products].map((product, index) => (
+              {/* Triple the products to create seamless loop */}
+              {[...products, ...products, ...products].map((product, index) => (
                 <motion.div 
                   key={`${product.id}-${index}`} 
-                  className="flex-shrink-0 w-64 bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  className="flex-shrink-0 w-48 sm:w-56 md:w-60 lg:w-64 bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
                   whileHover={{ y: -5 }}
                 >
                   <img 
                     src={product.image} 
                     alt={product.name}
-                    className="w-full h-40 object-cover"
+                    className="w-full h-32 sm:h-36 md:h-40 object-cover"
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = '/product-images/placeholder.svg';
                     }}
                   />
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-2">{product.name}</h3>
-                    <p className="text-sm text-gray-500 mb-2">{product.brand}</p>
-                    <p className="text-neon-accent font-bold text-lg">PKR {product.price.toLocaleString()}</p>
+                  <div className="p-3 md:p-4">
+                    <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-1 line-clamp-2">{product.name}</h3>
+                    <p className="text-xs md:text-sm text-gray-500 mb-1 md:mb-2">{product.brand}</p>
+                    <p className="text-neon-accent font-bold text-base md:text-lg">PKR {product.price.toLocaleString()}</p>
                   </div>
                 </motion.div>
               ))}
             </motion.div>
           </div>
           
-          {/* Second Infinite Scroll Ribbon - Right to Left */}
-          <div className="relative overflow-hidden py-8 mb-16">
-            <motion.div
-              className="flex space-x-6"
-              animate={{ x: ["-60%", "-10%"] }}
-              transition={{ 
-                x: {
-                  repeat: Infinity,
-                  repeatType: "loop",
-                  duration: 15,
-                  ease: "linear"
-                }
-              }}
-            >
-              {/* Double the products to create seamless loop */}
-              {[...products, ...products].map((product, index) => (
-                <motion.div 
-                  key={`reverse-${product.id}-${index}`} 
-                  className="flex-shrink-0 w-64 bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                  whileHover={{ y: -5 }}
-                >
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    className="w-full h-40 object-cover"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = '/product-images/placeholder.svg';
-                    }}
-                  />
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-2">{product.name}</h3>
-                    <p className="text-sm text-gray-500 mb-2">{product.brand}</p>
-                    <p className="text-neon-accent font-bold text-lg">PKR {product.price.toLocaleString()}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-          
-          {/* Top Products Grid */}
-          <div className="mt-16">
+          {/* Swipeable Card Stack */}
+          <div className="py-4 mb-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="text-center mb-12"
+              className="text-center mb-6"
             >
-              <h2 className="text-4xl font-bold text-gray-800 mb-4">Top Products</h2>
-              <p className="text-gray-600 text-lg">
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Discover Products</h3>
+              <p className="text-gray-600 text-base">Swipe to explore our featured items</p>
+            </motion.div>
+            
+            <SwipeableCardStack products={products} maxCards={5} />
+          </div>
+          
+          {/* Top Products Grid */}
+          <div className="mt-10 sm:mt-12 md:mt-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mb-8 sm:mb-10 md:mb-12"
+            >
+              <h2 className="text-3xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4">Top Products</h2>
+              <p className="text-gray-600 text-base sm:text-lg px-4">
                 Most popular items loved by our customers
               </p>
             </motion.div>
             
             <motion.div 
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 px-4 sm:px-6 md:px-4"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ duration: 0.8, staggerChildren: 0.1 }}
@@ -353,14 +331,15 @@ const Home = () => {
               ))}
             </motion.div>
             
-            <div className="text-center mt-10">
+            <div className="text-center mt-8 sm:mt-10">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                className="w-full px-4 sm:w-auto"
               >
                 <Link 
                   to="/products" 
-                  className="bg-gradient-to-r from-gray-900 to-black text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-neon-accent hover:to-green-400 hover:text-black transition-all duration-300 inline-block shadow-lg hover:shadow-xl"
+                  className="bg-gradient-to-r from-gray-900 to-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full text-base sm:text-lg font-semibold hover:from-neon-accent hover:to-green-400 hover:text-black transition-all duration-300 inline-block shadow-lg hover:shadow-xl w-full sm:w-auto"
                 >
                   View All Products
                 </Link>
@@ -371,23 +350,23 @@ const Home = () => {
       </section>
       
       {/* Categories Section */}
-      <section className="py-16 px-4 bg-gradient-to-br from-gray-100 to-gray-200">
+      <section className="py-10 sm:py-12 md:py-16 px-4 bg-gradient-to-br from-gray-100 to-gray-200">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-10 md:mb-12"
           >
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">Shop by Category</h2>
-            <p className="text-gray-600 text-lg">
+            <h2 className="text-3xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 sm:mb-3 md:mb-4">Shop by Category</h2>
+            <p className="text-gray-600 text-base sm:text-lg px-4">
               Browse our wide range of product categories
             </p>
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.8, staggerChildren: 0.1 }}

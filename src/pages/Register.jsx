@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../utils/AuthContext';
@@ -12,8 +12,43 @@ const Register = () => {
     phone: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
+  const [networkStatus, setNetworkStatus] = useState('online');
+  const [error, setError] = useState('');
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+  
+  // Check network status
+  useEffect(() => {
+    const handleOnline = () => {
+      setNetworkStatus('online');
+      if (error) setError('');
+      toast.success('You are back online');
+    };
+    
+    const handleOffline = () => {
+      setNetworkStatus('offline');
+      setError('You are offline. Please check your internet connection before proceeding.');
+      toast.error('You are offline. Please check your internet connection.');
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Set initial status
+    setNetworkStatus(navigator.onLine ? 'online' : 'offline');
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [error]);
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,18 +61,30 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Clear previous errors
+    setError('');
+    
+    // Check network status
+    if (networkStatus === 'offline') {
+      setError('You are offline. Please check your internet connection and try again.');
+      return;
+    }
+    
     // Validate form
     if (!formData.name.trim()) {
+      setError('Please enter your name');
       toast.error('Please enter your name');
       return;
     }
     
     if (!formData.email.trim()) {
+      setError('Please enter your email address');
       toast.error('Please enter your email address');
       return;
     }
     
     if (!isValidEmail(formData.email)) {
+      setError('Please enter a valid email address');
       toast.error('Please enter a valid email address');
       return;
     }
@@ -45,23 +92,28 @@ const Register = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
       // Generate a random 6-digit code
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       
-      // Call login function from AuthContext with additional user data
-      login(formData.email, verificationCode, {
+      // Call login function from AuthContext with additional user data (now async)
+      const emailSent = await login(formData.email, verificationCode, {
         name: formData.name,
         phone: formData.phone,
         isNewUser: true
       });
       
-      toast.success('Account created! Verification code sent to your email');
+      if (emailSent) {
+        toast.success('Account created! Verification code sent to your email');
+      } else {
+        // Email wasn't sent but we still created the pending user
+        toast.warning('Account created! We had trouble sending the verification email, but you can still proceed with verification. If you don\'t receive the code, you can request a new one on the next screen.');
+      }
+      
       navigate('/verify');
     } catch (error) {
-      toast.error('Something went wrong. Please try again.');
+      console.error('Registration error:', error);
+      setError(error.message || 'Something went wrong. Please try again.');
+      toast.error(error.message || 'Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -137,11 +189,23 @@ const Register = () => {
               />
             </div>
             
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-md">
+                {error}
+              </div>
+            )}
+            
+            {networkStatus === 'offline' && !error && (
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-700 text-sm rounded-md">
+                You are currently offline. Please check your internet connection before proceeding.
+              </div>
+            )}
+            
             <motion.button
               type="submit"
-              className="w-full bg-black text-white py-3 rounded-full text-lg font-semibold hover:bg-neon-accent hover:text-black transition-colors duration-300 mb-4"
-              whileTap={{ scale: 0.95 }}
-              disabled={isSubmitting}
+              className={`w-full py-3 rounded-full text-lg font-semibold transition-colors duration-300 mb-4 ${networkStatus === 'offline' ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-black text-white hover:bg-neon-accent hover:text-black'}`}
+              whileTap={{ scale: networkStatus === 'offline' ? 1 : 0.95 }}
+              disabled={isSubmitting || networkStatus === 'offline'}
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center">

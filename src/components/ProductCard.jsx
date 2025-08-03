@@ -14,7 +14,7 @@ const ProductCard = ({ product }) => {
   
   return (
     <motion.div 
-      className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 group border border-gray-100"
+      className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 group border border-gray-100 h-full"
       whileHover={{ 
         y: -8,
         transition: { duration: 0.3 }
@@ -24,7 +24,7 @@ const ProductCard = ({ product }) => {
       transition={{ duration: 0.3 }}
     >
       <Link to={`/product/${product.id}`} className="block">
-        <div className="relative h-48 overflow-hidden bg-gray-50">
+        <div className="relative h-40 sm:h-44 md:h-48 overflow-hidden bg-gray-50">
           <img 
             src={product.image} 
             alt={product.name}
@@ -39,35 +39,35 @@ const ProductCard = ({ product }) => {
           {/* Quick Add Button */}
           <motion.button
             onClick={handleAddToCart}
-            className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-800 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-neon-accent hover:text-black"
+            className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white/90 backdrop-blur-sm text-gray-800 p-1.5 sm:p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-neon-accent hover:text-black"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </motion.button>
         </div>
       </Link>
       
-      <div className="p-5">
-        <Link to={`/product/${product.id}`} className="block">
-          <h3 className="text-lg font-semibold text-gray-800 mb-1 hover:text-neon-accent transition-colors duration-300 line-clamp-2">
+      <div className="p-3 sm:p-4 md:p-5 flex flex-col h-[calc(100%-10rem)]">
+        <Link to={`/product/${product.id}`} className="block flex-grow">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1 hover:text-neon-accent transition-colors duration-300 line-clamp-2">
             {product.name}
           </h3>
         </Link>
         
-        <p className="text-sm text-gray-500 mb-3 font-medium">{product.brand}</p>
+        <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3 font-medium">{product.brand}</p>
         
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-auto space-y-2 sm:space-y-0">
           <div className="flex flex-col">
-            <span className="text-xl font-bold text-gray-900">PKR {product.price.toLocaleString()}</span>
+            <span className="text-lg sm:text-xl font-bold text-gray-900">PKR {product.price.toLocaleString()}</span>
             <span className="text-xs text-gray-500">Free delivery</span>
           </div>
           
           <motion.button
             onClick={handleAddToCart}
-            className="bg-gradient-to-r from-gray-900 to-black text-white px-4 py-2 rounded-full text-sm font-medium hover:from-neon-accent hover:to-neon-accent hover:text-black transition-all duration-300 shadow-md hover:shadow-lg"
+            className="bg-gradient-to-r from-gray-900 to-black text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium hover:from-neon-accent hover:to-neon-accent hover:text-black transition-all duration-300 shadow-md hover:shadow-lg w-full sm:w-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >

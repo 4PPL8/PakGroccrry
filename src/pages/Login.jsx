@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../utils/AuthContext';
@@ -8,8 +8,40 @@ import toast from 'react-hot-toast';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
+  const [networkStatus, setNetworkStatus] = useState('online');
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+  
+  // Check network status
+  useEffect(() => {
+    const handleOnline = () => {
+      setNetworkStatus('online');
+      toast.success('You are back online');
+    };
+    
+    const handleOffline = () => {
+      setNetworkStatus('offline');
+      toast.error('You are offline. Please check your internet connection.');
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Set initial status
+    setNetworkStatus(navigator.onLine ? 'online' : 'offline');
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
   
   // Email validation function
   const isValidEmail = (email) => {
@@ -33,19 +65,23 @@ const Login = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
       // Generate a random 6-digit code
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       
-      // Call login function from AuthContext
-      login(email, verificationCode);
+      // Call login function from AuthContext (now async)
+      const emailSent = await login(email, verificationCode);
       
-      toast.success('Verification code sent to your email');
+      if (emailSent) {
+        toast.success('Verification code sent to your email');
+      } else {
+        // Email wasn't sent but we still created the pending user
+        toast.warning('We had trouble sending the email, but you can still proceed with verification. If you don\'t receive the code, you can request a new one on the next screen.');
+      }
+      
       navigate('/verify');
     } catch (error) {
-      toast.error('Something went wrong. Please try again.');
+      console.error('Login error:', error);
+      toast.error(error.message || 'Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -88,11 +124,17 @@ const Login = () => {
               />
             </div>
             
+            {networkStatus === 'offline' && (
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-700 text-sm rounded-md">
+                You are currently offline. Please check your internet connection before proceeding.
+              </div>
+            )}
+            
             <motion.button
               type="submit"
-              className="w-full bg-black text-white py-3 rounded-full text-lg font-semibold hover:bg-neon-accent hover:text-black transition-colors duration-300 mb-4"
-              whileTap={{ scale: 0.95 }}
-              disabled={isSubmitting}
+              className={`w-full py-3 rounded-full text-lg font-semibold transition-colors duration-300 mb-4 ${networkStatus === 'offline' ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-black text-white hover:bg-neon-accent hover:text-black'}`}
+              whileTap={{ scale: networkStatus === 'offline' ? 1 : 0.95 }}
+              disabled={isSubmitting || networkStatus === 'offline'}
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center">
