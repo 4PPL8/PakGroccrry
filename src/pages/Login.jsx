@@ -2,42 +2,30 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../utils/AuthContext';
-import toast from 'react-hot-toast';
 import Breadcrumb from '../components/Breadcrumb';
+import toast from 'react-hot-toast';
 
-const Register = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: ''
-  });
+const Login = () => {
+  const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  // Email validation function
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form
-    if (!formData.name.trim()) {
-      toast.error('Please enter your name');
-      return;
-    }
-    
-    if (!formData.email.trim()) {
+    if (!email.trim()) {
       toast.error('Please enter your email address');
       return;
     }
     
-    if (!isValidEmail(formData.email)) {
+    if (!isValidEmail(email)) {
       toast.error('Please enter a valid email address');
       return;
     }
@@ -51,14 +39,10 @@ const Register = () => {
       // Generate a random 6-digit code
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       
-      // Call login function from AuthContext with additional user data
-      login(formData.email, verificationCode, {
-        name: formData.name,
-        phone: formData.phone,
-        isNewUser: true
-      });
+      // Call login function from AuthContext
+      login(email, verificationCode);
       
-      toast.success('Account created! Verification code sent to your email');
+      toast.success('Verification code sent to your email');
       navigate('/verify');
     } catch (error) {
       toast.error('Something went wrong. Please try again.');
@@ -67,10 +51,6 @@ const Register = () => {
     }
   };
   
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
   
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
@@ -79,7 +59,7 @@ const Register = () => {
         <Breadcrumb 
           items={[
             { label: 'Home', path: '/' },
-            { label: 'Register' }
+            { label: 'Login' }
           ]}
         />
       </div>
@@ -92,46 +72,17 @@ const Register = () => {
           transition={{ duration: 0.5 }}
         >
           <div className="px-6 py-8">
-            <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Create an Account</h2>
+            <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login to WahabStore</h2>
           
           <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-gray-700 font-medium mb-2">Full Name</label>
-              <input 
-                type="text" 
-                id="name" 
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter your full name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-accent focus:border-transparent"
-                disabled={isSubmitting}
-              />
-            </div>
-            
-            <div className="mb-4">
+            <div className="mb-6">
               <label htmlFor="email" className="block text-gray-700 font-medium mb-2">Email Address</label>
               <input 
                 type="email" 
                 id="email" 
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-accent focus:border-transparent"
-                disabled={isSubmitting}
-              />
-            </div>
-            
-            <div className="mb-6">
-              <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">Phone Number (Optional)</label>
-              <input 
-                type="tel" 
-                id="phone" 
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Enter your phone number"
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-neon-accent focus:border-transparent"
                 disabled={isSubmitting}
               />
@@ -149,23 +100,23 @@ const Register = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Creating Account...
+                  Sending Code...
                 </span>
-              ) : 'Create Account'}
+              ) : 'Send Verification Code'}
             </motion.button>
           </form>
           
           <p className="text-center mt-6 text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="text-neon-accent font-medium hover:underline">
-              Login
+            Don't have an account?{' '}
+            <Link to="/register" className="text-neon-accent font-medium hover:underline">
+              Register
             </Link>
           </p>
         </div>
         
         <div className="px-6 py-4 bg-gray-50 border-t">
           <p className="text-sm text-gray-600 text-center">
-            By creating an account, you agree to PakGrocery's Terms of Service and Privacy Policy.
+            By continuing, you agree to WahabStore's Terms of Service and Privacy Policy.
           </p>
         </div>
       </motion.div>
@@ -174,4 +125,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

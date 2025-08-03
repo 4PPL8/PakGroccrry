@@ -39,7 +39,7 @@ const Cart = () => {
       return;
     }
     
-    const subject = 'New Order from PakGrocery';
+    const subject = 'New Order from WahabStore';
     
     let body = `New order from: ${user.email}\n\n`;
     body += `Delivery Address: ${address}\n\n`;
@@ -55,7 +55,7 @@ const Cart = () => {
       body += `\nCustomer Note: ${note}\n`;
     }
     
-    const mailtoLink = `mailto:orders@pakgrocery.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoLink = `mailto:orders@wahabstore.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     
     window.location.href = mailtoLink;
     
@@ -79,7 +79,7 @@ const Cart = () => {
       return;
     }
     
-    let message = `*New Order from PakGrocery*\n\n`;
+    let message = `*New Order from WahabStore*\n\n`;
     message += `*Customer:* ${user.email}\n`;
     message += `*Phone:* ${phoneNumber}\n`;
     message += `*Delivery Address:* ${address}\n\n`;
@@ -158,7 +158,7 @@ const Cart = () => {
                             className="w-full h-full object-cover rounded-md"
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.src = '/product-images/placeholder.jpg';
+                              e.target.src = '/product-images/placeholder.svg';
                             }}
                           />
                         </div>

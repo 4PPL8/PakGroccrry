@@ -12,22 +12,64 @@ const Home = () => {
   // Hero images
   const heroImages = [
     {
-      image: '/product-images/slice-juice-1.jpg',
+      image: '/product-images/placeholder.svg',
       title: 'Refreshing Slice Mango Juice',
       description: 'Start your day with the taste of fresh mangoes',
       cta: 'Shop Beverages'
     },
     {
-      image: '/product-images/olper-milk-1.jpg',
+      image: '/product-images/placeholder.svg',
       title: 'Pure & Fresh Olper Milk',
       description: 'Healthy and nutritious for the whole family',
       cta: 'Shop Dairy'
     },
     {
-      image: '/product-images/dalda-oil-1.jpg',
+      image: '/product-images/placeholder.svg',
       title: 'Premium Dalda Cooking Oil',
       description: 'For delicious and healthy cooking',
       cta: 'Shop Essentials'
+    },
+    {
+      image: '/product-images/placeholder.svg',
+      title: 'Crispy Sooper Biscuits',
+      description: 'Enjoy the perfect tea-time snack with family',
+      cta: 'Shop Snacks'
+    },
+    {
+      image: '/product-images/placeholder.svg',
+      title: 'Refreshing Shezan Mango Juice',
+      description: 'Premium quality juice for a refreshing experience',
+      cta: 'Shop Beverages'
+    },
+    {
+      image: '/product-images/placeholder.svg',
+      title: 'Creamy Nestlé Milk',
+      description: 'UHT treated milk for your daily nutrition needs',
+      cta: 'Shop Dairy'
+    },
+    {
+      image: '/product-images/placeholder.svg',
+      title: 'Crispy Lays Classic Chips',
+      description: 'Perfect snack for movie nights and gatherings',
+      cta: 'Shop Snacks'
+    },
+    {
+      image: '/product-images/placeholder.svg',
+      title: 'Authentic Shan Biryani Masala',
+      description: 'Create the perfect biryani with our special blend',
+      cta: 'Shop Spices'
+    },
+    {
+      image: '/product-images/placeholder.svg',
+      title: 'Traditional Rooh Afza',
+      description: 'The perfect refreshment for hot summer days',
+      cta: 'Shop Beverages'
+    },
+    {
+      image: '/product-images/placeholder.svg',
+      title: 'Premium Nurpur Butter',
+      description: 'Pure butter made from fresh cream for your breakfast',
+      cta: 'Shop Dairy'
     }
   ];
   
@@ -121,6 +163,7 @@ const Home = () => {
                     {hero.description}
                   </motion.p>
                   
+                  {/* FIX: Added 'flex' and 'justify-center' to make buttons side-by-side and centered */}
                   <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ 
@@ -128,7 +171,7 @@ const Home = () => {
                       opacity: currentHeroIndex === index ? 1 : 0 
                     }}
                     transition={{ delay: 0.6, duration: 0.8 }}
-                    className="space-x-4"
+                    className="flex justify-center space-x-4" 
                   >
                     <motion.div
                       whileHover={{ scale: 1.05 }}
@@ -175,13 +218,13 @@ const Home = () => {
           ))}
         </div>
         
-        {/* Scroll Indicator */}
+        {/* Scroll Indicator - Moved outside the hero section */}
         <motion.div 
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 z-10"
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 2 }}
         >
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-8 h-8 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>
         </motion.div>
@@ -199,7 +242,7 @@ const Home = () => {
           >
             <h2 className="text-4xl font-bold text-gray-800 mb-4">Featured Products</h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Discover our handpicked selection of premium Pakistani grocery items
+              Discover our handpicked selection of premium grocery items
             </p>
           </motion.div>
           
@@ -212,7 +255,7 @@ const Home = () => {
                 x: {
                   repeat: Infinity,
                   repeatType: "loop",
-                  duration: 30,
+                  duration: 15,  /* Reduced from 30 to 15 to make it faster */
                   ease: "linear"
                 }
               }}
@@ -230,7 +273,7 @@ const Home = () => {
                     className="w-full h-40 object-cover"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = '/product-images/placeholder.jpg';
+                      e.target.src = '/product-images/placeholder.svg';
                     }}
                   />
                   <div className="p-4">
@@ -334,9 +377,9 @@ const Home = () => {
                   alt={category.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = '/product-images/placeholder.jpg';
-                  }}
+                      e.target.onerror = null;
+                      e.target.src = '/product-images/placeholder.svg';
+                    }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end justify-center pb-6">
                   <Link 

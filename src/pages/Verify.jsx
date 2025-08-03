@@ -17,8 +17,12 @@ const Verify = () => {
     inputRefs.current = Array(6).fill().map(() => React.createRef());
   }
 
-  // ...rest of your code
-
+  // Focus first input on mount
+  useEffect(() => {
+    if (inputRefs.current[0]) {
+      inputRefs.current[0].current.focus();
+    }
+  }, []);
 
   // Redirect if no pending verification
   useEffect(() => {
@@ -57,7 +61,7 @@ const Verify = () => {
     
     // Auto-focus next input
     if (value && index < 5) {
-      inputRefs[index + 1].current.focus();
+      inputRefs.current[index + 1].current.focus();
     }
   };
   
@@ -65,7 +69,7 @@ const Verify = () => {
   const handleKeyDown = (index, e) => {
     // Move to previous input on backspace
     if (e.key === 'Backspace' && !code[index] && index > 0) {
-      inputRefs[index - 1].current.focus();
+      inputRefs.current[index - 1].current.focus();
     }
   };
   
@@ -80,7 +84,7 @@ const Verify = () => {
       setCode(digits);
       
       // Focus the last input
-      inputRefs[5].current.focus();
+      inputRefs.current[5].current.focus();
     }
   };
   
