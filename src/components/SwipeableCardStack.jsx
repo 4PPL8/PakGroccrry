@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useAnimation, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -7,22 +7,26 @@ const SwipeableCardStack = ({ products, maxCards = 5 }) => {
   const [stack, setStack] = useState(() => products.slice(0, maxCards));
   const [direction, setDirection] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragTimeout, setDragTimeout] = useState(null);
   
   // Motion values for the top card
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 0, 200], [-15, 0, 15]);
+  const rotate = useTransform(x, [-200, 0, 200], [-15, 0, 15], { clamp: true });
   const opacity = useTransform(
     x, 
     [-200, -150, 0, 150, 200], 
-    [0.5, 1, 1, 1, 0.5]
+    [0.5, 1, 1, 1, 0.5],
+    { clamp: true }
   );
   
   // Transform for the swipe effect - subtle green border effect regardless of direction
+  // Optimize the transform to reduce unnecessary calculations
   const swipeEffectOpacity = useTransform(
     x,
     [-200, -100, 0, 100, 200],
-    [0.6, 0.3, 0, 0.3, 0.6]
+    [0.6, 0.3, 0, 0.3, 0.6],
+    { clamp: true } // Clamp values to reduce calculations outside the range
   );
   
   // Controls for animations
@@ -30,6 +34,16 @@ const SwipeableCardStack = ({ products, maxCards = 5 }) => {
   
   // Threshold for swipe to be considered a decision
   const SWIPE_THRESHOLD = 100;
+  
+  // Cleanup function for timeouts
+  useEffect(() => {
+    // Cleanup function to clear any remaining timeouts when component unmounts
+    return () => {
+      if (dragTimeout) {
+        clearTimeout(dragTimeout);
+      }
+    };
+  }, [dragTimeout]);
   
   // Calculate dynamic card position based on drag amount
   const calculateCardOffset = (index) => {
@@ -40,12 +54,19 @@ const SwipeableCardStack = ({ products, maxCards = 5 }) => {
     const dragProgress = Math.min(Math.abs(currentX) / 200, 0.5);
     
     // Increase the offset of cards below based on how far the top card is dragged
-    return index * 12 - (dragProgress * 5 * index);
+    // Use a more efficient calculation that reduces visual complexity
+    return index * 10 - (dragProgress * 4 * index);
   };
   
   // Handle card removal
   const removeCard = (direction) => {
     setDirection(direction);
+    
+    // Pre-load the next card's image to reduce lag
+    if (stack.length > 1) {
+      const nextCardImage = new Image();
+      nextCardImage.src = stack[1].image;
+    }
     
     // Remove the top card
     setStack((prevStack) => {
@@ -61,29 +82,45 @@ const SwipeableCardStack = ({ products, maxCards = 5 }) => {
         if (availableProducts.length > 0) {
           // Add a random product from available ones
           const randomIndex = Math.floor(Math.random() * availableProducts.length);
-          newStack.push(availableProducts[randomIndex]);
+          const newProduct = availableProducts[randomIndex];
+          
+          // Pre-load the new product's image
+          const newImage = new Image();
+          newImage.src = newProduct.image;
+          
+          newStack.push(newProduct);
         }
       }
       
       return newStack;
     });
     
-    // Reset motion values
-    x.set(0);
-    y.set(0);
+    // Reset motion values with a slight delay to ensure smooth transitions
+    setTimeout(() => {
+      x.set(0);
+      y.set(0);
+    }, 50);
   };
   
   // Handle drag start
   const handleDragStart = () => {
     setIsDragging(true);
+    
+    // Clear any existing timeout
+    if (dragTimeout) {
+      clearTimeout(dragTimeout);
+      setDragTimeout(null);
+    }
   };
   
   // Handle drag end
   const handleDragEnd = (_, info) => {
     setIsDragging(false);
     const offsetX = info.offset.x;
+    const velocityX = info.velocity.x;
     
-    if (Math.abs(offsetX) > SWIPE_THRESHOLD) {
+    // Auto-complete swipe if velocity is high enough, even if not past threshold
+    if (Math.abs(offsetX) > SWIPE_THRESHOLD || Math.abs(velocityX) > 500) {
       // Determine direction and animate card off screen
       const direction = offsetX > 0 ? 'right' : 'left';
       const targetX = direction === 'right' ? 500 : -500;
@@ -92,6 +129,18 @@ const SwipeableCardStack = ({ products, maxCards = 5 }) => {
         x: targetX,
         opacity: 0,
         transition: { duration: 0.3, ease: [0.32, 0.72, 0, 1] }
+      }).then(() => {
+        removeCard(direction);
+      });
+    } else if (Math.abs(offsetX) > SWIPE_THRESHOLD / 2) {
+      // If dragged more than half the threshold, auto-complete the swipe
+      const direction = offsetX > 0 ? 'right' : 'left';
+      const targetX = direction === 'right' ? 500 : -500;
+      
+      controls.start({
+        x: targetX,
+        opacity: 0,
+        transition: { duration: 0.4, ease: [0.32, 0.72, 0, 1] }
       }).then(() => {
         removeCard(direction);
       });
@@ -122,7 +171,7 @@ const SwipeableCardStack = ({ products, maxCards = 5 }) => {
         <>
           {/* Stack of cards */}
           <div className="relative w-full max-w-sm mx-auto h-full">
-            <AnimatePresence>
+            <AnimatePresence mode="popLayout">
               {stack.map((product, index) => (
                 <motion.div
                   key={product.id}
@@ -137,6 +186,7 @@ const SwipeableCardStack = ({ products, maxCards = 5 }) => {
                         ? '0 15px 30px rgba(0, 0, 0, 0.2)' 
                         : '0 10px 25px rgba(0, 0, 0, 0.15)' 
                       : '0 5px 15px rgba(0, 0, 0, 0.1)',
+                    willChange: index < 2 ? 'transform, opacity' : 'auto', // Hardware acceleration for top cards
                     ...(index === 0 ? {
                       x,
                       y,
@@ -150,17 +200,62 @@ const SwipeableCardStack = ({ products, maxCards = 5 }) => {
                   dragElastic={0.8}
                   onDragStart={index === 0 ? handleDragStart : undefined}
                   onDragEnd={index === 0 ? handleDragEnd : undefined}
+                  onDrag={(_, info) => {
+                    if (index === 0) {
+                      // Clear any existing timeout
+                      if (dragTimeout) {
+                        clearTimeout(dragTimeout);
+                      }
+                      
+                      // Set a new timeout to auto-complete the swipe after a short period of inactivity
+                      // The timeout duration is proportional to how far the card has been dragged
+                      const newTimeout = setTimeout(() => {
+                        const currentX = x.get();
+                        // Determine auto-swipe behavior based on drag distance
+                        if (Math.abs(currentX) > SWIPE_THRESHOLD / 2) {
+                          // If dragged more than half the threshold, complete swipe quickly
+                          const direction = currentX > 0 ? 'right' : 'left';
+                          const targetX = direction === 'right' ? 500 : -500;
+                          
+                          controls.start({
+                            x: targetX,
+                            opacity: 0,
+                            transition: { duration: 0.4, ease: [0.32, 0.72, 0, 1] }
+                          }).then(() => {
+                            removeCard(direction);
+                            setDragTimeout(null);
+                          });
+                        } else if (Math.abs(currentX) > 20) {
+                          // If only moved a little, still auto-complete but with slower animation
+                          const direction = currentX > 0 ? 'right' : 'left';
+                          const targetX = direction === 'right' ? 500 : -500;
+                          
+                          controls.start({
+                            x: targetX,
+                            opacity: 0,
+                            transition: { duration: 0.5, ease: [0.32, 0.72, 0, 1] }
+                          }).then(() => {
+                            removeCard(direction);
+                            setDragTimeout(null);
+                          });
+                        }
+                      }, Math.max(800, 1500 - Math.abs(x.get()) * 3)); // Shorter timeout for larger drags
+                      
+                      setDragTimeout(newTimeout);
+                    }
+                  }}
                   transition={{
                     type: 'spring',
-                    stiffness: 400,
-                    damping: 30,
-                    mass: 0.8
+                    stiffness: 500,  // Increased stiffness for snappier animations
+                    damping: 40,     // Increased damping to reduce oscillation
+                    mass: 0.6,       // Reduced mass for faster movement
+                    restDelta: 0.01  // Smaller rest delta for smoother finish
                   }}
                   whileTap={{ scale: index === 0 ? 1.05 : 1 }}
                   exit={{
                     x: direction === 'right' ? 500 : -500,
                     opacity: 0,
-                    transition: { duration: 0.3 }
+                    transition: { duration: 0.25, ease: [0.32, 0.72, 0, 1] }
                   }}
                 >
                   <div 
@@ -172,6 +267,8 @@ const SwipeableCardStack = ({ products, maxCards = 5 }) => {
                         src={product.image} 
                         alt={product.name}
                         className="w-full h-full object-cover"
+                        loading={index < 2 ? "eager" : "lazy"} // Eagerly load top two cards
+                        decoding="async" // Use async decoding for better performance
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src = '/product-images/placeholder.svg';
